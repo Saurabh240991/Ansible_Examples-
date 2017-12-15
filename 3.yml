@@ -1,0 +1,79 @@
+---
+
+- name: "substring/slices sorting tests"
+
+  hosts: localhost
+
+  vars:
+    servers:
+      apps:
+        name: "nx-1b-dkr-ngn" 
+
+    k5_server:
+      ansible_facts:
+        openstack_servers:
+          - { name: "nx-1b-dkr-ngn04", ip: "4.4.4.4", alias: 'four' }
+          - { name: "nx-1b-dkr-ngn01", ip: "1.1.1.1", alias: 'one',}
+          - { name: "nx-1b-dkr-ngn02", ip: "2.2.2.2", alias: 'two' }
+          - { name: "nx-1b-dkr-ngn03", ip: "3.3.3.3", alias: 'three' }
+
+  tasks:
+
+
+
+
+    - name: first
+      debug: msg="{{ item }}"
+      with_items: "{{ k5_server.ansible_facts.openstack_servers[0].name }}"
+
+    - name: last
+      debug: msg="{{ item }}" 
+      with_items: "{{ k5_server.ansible_facts.openstack_servers[-1].name }}"
+
+    - name: not first
+      debug: msg="{{ item.name }}"
+      with_items: "{{ k5_server.ansible_facts.openstack_servers[1:] }}"
+
+
+    - debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: "{{ k5_server.ansible_facts.openstack_servers }}"
+
+
+    - name: test 1
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers}}"
+
+    - name: test 2
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers | first }}"
+
+    - name: test 3
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers | last }}"
+
+    - name: test 4
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers[1:] }}"
+
+    - name: test 5
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers | sort(attribute='name')}}"
+
+    - name: test 6
+      debug: msg="{{ item.name }} = {{ item.ip }} = {{ item.alias }}"
+      with_items: 
+        - "{{ k5_server.ansible_facts.openstack_servers | sort(attribute='alias')}}"
+
+
+    - set_fact: 
+        sorted: "{{ k5_server.ansible_facts.openstack_servers | sort(attribute='name') }}"
+
+    - name: test 7
+      debug: msg="{{ item.name }} = {{ item.ip }}"
+      with_items: 
+        - "{{ sorted[1:] }}"

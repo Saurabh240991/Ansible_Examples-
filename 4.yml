@@ -1,0 +1,15 @@
+---
+
+- hosts: localhost
+  connection: local
+  tasks:
+  - uri:
+      url: https://rstumph2.service-now.com/stats.do
+      return_content: yes
+    register: response
+
+  - debug: msg="{{ response.content }}"
+
+  - set_fact: "mid_build_stamp={{ response.content | regex_search('MID buildstamp: ([^<]{1,})') }}"
+
+  - debug: "msg={{ mid_build_stamp.split(': ')[1]}}"
